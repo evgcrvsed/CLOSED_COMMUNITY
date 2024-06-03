@@ -11,7 +11,7 @@ db = DataBase('data/database.db')
 
 bot_main = Bot(token=os.getenv("TELEGRAM_BOT_TOKEN"))
 
-from services import start, tariffs, notifications
+from services import start, tariffs, about_us, my_subscribe_info, notifications
 
 
 async def main_bot():
@@ -19,6 +19,8 @@ async def main_bot():
 
     dp.include_routers(
         tariffs.router,
+        my_subscribe_info.router,
+        about_us.router,
         start.router
     )
 

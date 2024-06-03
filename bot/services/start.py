@@ -29,8 +29,8 @@ async def start(clb) -> None:
     builder = InlineKeyboardBuilder()
 
     builder.row(InlineKeyboardButton(text='💵 Тарифы', callback_data='tariffs_main'))
-    builder.row(InlineKeyboardButton(text='⏳ Моя подписка', callback_data='check_subscribe'))
-    builder.row(InlineKeyboardButton(text='🔎 Подробнее о закрытом канале', callback_data='check_subscribe'))
+    builder.row(InlineKeyboardButton(text='⏳ Моя подписка', callback_data='my_subscribe_info'))
+    builder.row(InlineKeyboardButton(text='🔎 Подробнее о закрытом канале', callback_data='about_us'))
 
     text = """
 Приветик, моя дорогая, этот бот поможет тебе попасть в моё приватное комьюнити  “CLOSED COMMUNITY”
