@@ -18,7 +18,7 @@ async def tariffs_main(clb) -> None:
     builder = InlineKeyboardBuilder()
 
     builder.row(InlineKeyboardButton(text='🏵 1 месяц', callback_data='tariffs_1_1'))
-    builder.row(InlineKeyboardButton(text='🌹 3 месяца (ВЫГОДНЕЕ ВСЕГО)', callback_data='tariffs_3_1'))
+    builder.row(InlineKeyboardButton(text='🌹 3 месяца (ПОПУЛЯРНО)', callback_data='tariffs_3_1'))
     builder.row(InlineKeyboardButton(text='🌸 6 месяцев', callback_data='tariffs_6_1'))
     builder.row(InlineKeyboardButton(text='🌺 12 месяцев', callback_data='tariffs_12_1'))
     builder.row(InlineKeyboardButton(text='⬅️ Назад', callback_data='start'))
@@ -312,3 +312,86 @@ async def pay_6(clb) -> None:
         parse_mode=ParseMode.MARKDOWN_V2
     )
 
+
+# 12 МЕСЯЦА
+@router.callback_query(F.data == 'tariffs_12_1')
+async def tariffs_12(clb) -> None:
+    builder = InlineKeyboardBuilder()
+
+    builder.row(InlineKeyboardButton(text='💵 Оплатить', callback_data='tariffs_12_2'))
+    builder.row(InlineKeyboardButton(text='⬅️ Назад', callback_data='tariffs_main'))
+
+    text = tariffs_text
+    text = text.replace('DATE', '12 месяцев 🌺')
+    text = text.replace('PRICE ', '~11 880~ 10 990')
+    text = text.replace('TIME', '365 дней')
+
+    text = f'{text}✦ Закрытый канал'
+    text = f'{text}\n✦ Чат комьюнити'
+    text = f'{text}\n✦ Гайды и чек листы'
+
+    message = clb.bot.edit_message_reply_markup
+    await message(
+        chat_id=clb.message.chat.id,
+        message_id=clb.message.message_id,
+        reply_markup=builder.as_markup()
+    )
+
+    await clb.message.edit_caption(
+        caption=text,
+        reply_markup=builder.as_markup(),
+        parse_mode=ParseMode.MARKDOWN_V2
+    )
+
+
+@router.callback_query(F.data == 'tariffs_12_2')
+async def tariffs_12_2(clb) -> None:
+    builder = InlineKeyboardBuilder()
+
+    builder.row(InlineKeyboardButton(text='💳 Банковская карта (любой страны)', callback_data='pay_12'))
+    builder.row(InlineKeyboardButton(text='⬅️ Назад', callback_data='tariffs_12_1'))
+
+    text = tariffs_text
+    text = text.replace('DATE', '12 месяцев 🌺')
+    text = text.replace('PRICE ', '~11 880~ 10 990')
+    text = text.replace('TIME', '365 дней')
+
+    text = text.replace('Вы получите доступ к следующим ресурсам:', 'Выберите способ оплаты:')
+
+    message = clb.bot.edit_message_reply_markup
+    await message(
+        chat_id=clb.message.chat.id,
+        message_id=clb.message.message_id,
+        reply_markup=builder.as_markup()
+    )
+
+    await clb.message.edit_caption(
+        caption=text,
+        reply_markup=builder.as_markup(),
+        parse_mode=ParseMode.MARKDOWN_V2
+    )
+
+
+@router.callback_query(F.data == 'pay_12')
+async def pay_12(clb) -> None:
+    builder = InlineKeyboardBuilder()
+
+    builder.row(InlineKeyboardButton(text='💳 Перейти к оплате', web_app=WebAppInfo(url='https://www.youtube.com')))
+    builder.row(InlineKeyboardButton(text='⬅️ Назад', callback_data='tariffs_12_2'))
+
+    text = """
+✅ Счёт на оплату сформирован\. Доступы к закрытым сообществам будут открыты, как только вы оплатите его\.
+    """
+
+    message = clb.bot.edit_message_reply_markup
+    await message(
+        chat_id=clb.message.chat.id,
+        message_id=clb.message.message_id,
+        reply_markup=builder.as_markup()
+    )
+
+    await clb.message.edit_caption(
+        caption=text,
+        reply_markup=builder.as_markup(),
+        parse_mode=ParseMode.MARKDOWN_V2
+    )
