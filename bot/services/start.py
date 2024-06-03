@@ -4,15 +4,16 @@ from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message, InlineKeyboardButton, BotCommand
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.enums import ParseMode
+from aiogram.types.input_file import FSInputFile
 
 from main import db, bot_main
 from dotenv import load_dotenv
 load_dotenv()
 
-from .profile import profile_delete
 router = Router()
 
 
+@router.callback_query(F.data == 'start')
 @router.message(Command("start"))
 async def start(clb) -> None:
     if type(clb) is Message:
@@ -20,35 +21,54 @@ async def start(clb) -> None:
             print('С группы сообщение')
             return
 
-    db.add_user(user_telegram_id=clb.chat.id)
-    if db.get_user_group_joined(user_telegram_id=clb.chat.id):
-        await profile_delete(clb)
-        return
-
-    previous_message = clb
+    if type(clb) is CallbackQuery:
+        db.add_user(user_telegram_id=clb.message.chat.id)
+    elif type(clb) is Message:
+        db.add_user(user_telegram_id=clb.chat.id)
 
     builder = InlineKeyboardBuilder()
 
-    builder.row(InlineKeyboardButton(text='🔗 Подписаться', url=os.getenv("TELEGRAM_GROUP_URL")))
-    builder.row(InlineKeyboardButton(text='✅ Проверить подписку', callback_data='check_subscribe'))
+    builder.row(InlineKeyboardButton(text='💵 Тарифы', callback_data='tariffs_main'))
+    builder.row(InlineKeyboardButton(text='⏳ Моя подписка', callback_data='check_subscribe'))
+    builder.row(InlineKeyboardButton(text='🔎 Подробнее о закрытом канале', callback_data='check_subscribe'))
 
-    clb: Message = clb
+    text = """
+Приветик, моя дорогая, этот бот поможет тебе попасть в моё приватное комьюнити  “CLOSED COMMUNITY”
 
-    sent_message = await clb.answer(
-        text="""
-*👑 Приветствую\!*
+Что тебя ждет в закрытом комьюнити?
+✦ [Подробнее](https://t.me/evgcursed)
 
-💵 Для того чтобы начать пользоваться нашим ботом и получить доступ к *__безпроцентным кредитным предложениям__*, *подпишитесь* на наш _*официальный канал*_\.
+_Читаешь_ \- _*повторяешь*_ \- __*получаешь результат*__ 
 
-🤑 Это займет всего несколько секунд, и вы будете первыми узнавать о *новых акциях и специальных предложениях\!*
-""",
+Для того чтобы попасть в моё комьюнити и раз и на всегда забыть о проблемах с противоположным полом и выбери нужный тариф:
+"""
 
-        reply_markup=builder.as_markup(),
-        parse_mode=ParseMode.MARKDOWN_V2
-    )
+    if type(clb) is CallbackQuery:
+        message = clb.bot.edit_message_reply_markup
+        await message(
+            chat_id=clb.message.chat.id,
+            message_id=clb.message.message_id,
+            reply_markup=builder.as_markup()
+        )
 
-    db.set_last_bot_message_id(user_telegram_id=clb.chat.id, last_bot_message_id=sent_message.message_id)
-    await previous_message.delete()
+        await clb.message.edit_caption(
+            caption=text,
+            photo=FSInputFile('data/images/image_start.jpg'),
+            reply_markup=builder.as_markup(),
+            parse_mode=ParseMode.MARKDOWN_V2
+        )
+    elif type(clb) is Message:
+        previous_message = clb
+        clb: Message = clb
+
+        await clb.answer_photo(
+            caption=text,
+            photo=FSInputFile('data/images/image_start.jpg'),
+            reply_markup=builder.as_markup(),
+            parse_mode=ParseMode.MARKDOWN_V2
+        )
+
+        await previous_message.delete()
 
 
 @router.callback_query(F.data == 'check_subscribe')
@@ -57,4 +77,4 @@ async def check_subscribe(clb) -> None:
         await bot_main.answer_callback_query(callback_query_id=clb.id, text='Вы не подписались', show_alert=True)
         return
 
-    await profile_delete(clb)
+    # await profile_delete(clb)

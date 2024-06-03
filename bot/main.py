@@ -11,16 +11,15 @@ db = DataBase('data/database.db')
 
 bot_main = Bot(token=os.getenv("TELEGRAM_BOT_TOKEN"))
 
-from services import start, chat_join_request_handler, profile, notifications
+from services import start, tariffs, notifications
 
 
 async def main_bot():
     dp = Dispatcher()
 
     dp.include_routers(
-        profile.router,
-        start.router,
-        chat_join_request_handler.router
+        tariffs.router,
+        start.router
     )
 
     await bot_main.delete_my_commands()
